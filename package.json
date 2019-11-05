@@ -1,0 +1,19 @@
+{
+  "name": "s3Sample",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node -r dotenv/config ./src/index.js"
+  },
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "aws-sdk": "^2.563.0",
+    "dotenv": "^8.2.0",
+    "koa": "^2.11.0",
+    "koa-combine-routers": "^4.0.2",
+    "koa-router": "^7.4.0",
+    "pdfkit": "^0.10.0",
+    "request": "^2.88.0",
+    "uuidv4": "^5.0.1"
+  }
+}
