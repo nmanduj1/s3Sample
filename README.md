@@ -14,7 +14,7 @@ Heroku:
 2. Head to Sample Requests!
 
 ## Try it out!
-The Koa server has a route at /certificates/generate that accepts the following parameters:
+The Koa server has a route at `/certificates/generate` that accepts the following parameters:
 * firstName (String)
 * lastName (String)
 * title (String)
