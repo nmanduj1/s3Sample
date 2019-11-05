@@ -10,12 +10,8 @@ const validFileTypes = ["image/jpeg", "image/png", "image/jpg"]
 
 /* generatePDF function accepts first name (:string), last name (:string),
  title (:string), array of requested urls (:arr of strings) and returns path to file */
-const generatePDF = async (firstName, lastName, title, urlArray) => {
-  // initialize S3 client with provided credentials.
-  const s3 = new AWS.S3({
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-  })
+const generatePDF = async (options) => {
+  let { firstName, lastName, title, urlArray } = options
 
   // Initialize empty PDFKit document
   const doc = new PDFDocument({ layout : 'landscape' })
@@ -29,27 +25,11 @@ const generatePDF = async (firstName, lastName, title, urlArray) => {
   doc.font('Helvetica')
    .fontSize(25)
 
-  // dictate params for the empty certificate template to be downloaded from S3- including bucket name and file name
-  let params = {
-    Bucket: process.env.AWS_S3_BUCKET,
-    Key: 'certificateTemplate.jpeg'
-  }
+  // call helper method to retrieve certificate template
+  let retrievedTemplate = await retrieveTemplate()
 
-  // create promise to handle retrieval of certificate template from S3 bucket
-  let promise = new Promise ((resolve, reject) => {
-    s3.getObject(params, (err, data) => {
-      if (err) {
-        reject(err)
-      }
-      else {
-        // if certificate template is located, pass buffer to PDFKit document
-        let objectBuff = data.Body
-        doc.image(objectBuff, 0, 0, {width: 795, height: 614})
-        resolve(data)
-      }
-    })
-  })
-  await promise
+  // add retrieved certificate template to initialized pdfkit doc
+  doc.image(retrievedTemplate.Body, 0, 0, {width: 795, height: 614})
 
   // Set up styling for PDFKit certificate and add relevant text to appropriate fields
   doc.moveDown(9)
@@ -78,6 +58,25 @@ module.exports = generatePDF
 
 // Helper Methods
 
+// retrieves certificate template from s3 bucket- returns promise that resolves to cert data
+const retrieveTemplate = () => {
+  // initialize S3 client with provided credentials.
+  const s3 = new AWS.S3({
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+  })
+
+  // dictate params for the empty certificate template to be downloaded from S3- including bucket name and file name
+  let params = {
+    Bucket: process.env.AWS_S3_BUCKET,
+    Key: 'certificateTemplate.jpeg'
+  }
+
+  // create and return promise to handle retrieval of certificate template from S3 bucket
+  // TODO: Add error handling if s3 fails on retrieval
+  return new AWS.S3().getObject(params).promise()
+}
+
 // accepts a url, and returns a promise that resolves to the image buffer (if it exists)
 const downloadImage = (url) => {
   return new Promise ((resolve, reject) => {
@@ -96,6 +95,8 @@ const downloadImage = (url) => {
 
 // accepts the pdfkit doc, and the array of requested urls, adds images to the doc and returns void
 const addImages = async (doc, urlArray) => {
+  /* TODO: Modify this to be a forEach and instead of waiting for each individual promise to resolve,
+  create an array of promises to be awaited. Would improve download speed! */
   for (let i = 0; i < urlArray.length; i++) {
     // set up try catch to handle errors when attempting to download image
     try {

@@ -10,7 +10,7 @@ const router = new Router({
 // Define routes
 router.get('/generate', async (ctx, next) => {
   // Generates pdf with supplied params and uploads to s3.  Returns the pdf url as the response body.
-  let filename = await generatePDF(ctx.query.firstName, ctx.query.lastName, ctx.query.title, ctx.query.urlArray)
+  let filename = await generatePDF(ctx.query)
   let url = await s3Upload(filename)
 
   ctx.status = 200

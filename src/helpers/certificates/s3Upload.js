@@ -12,7 +12,7 @@ const s3Upload = async (filename) => {
   let concattedBuff = Buffer.concat(pdfData)
 
   // create object key for upload using random uuid
-  const objectKey = uuidv4() + '.pdf'
+  const objectKey = `${uuidv4()}.pdf`
 
   // create object with params to handle s3 upload
   const objectParams = {
@@ -25,6 +25,7 @@ const s3Upload = async (filename) => {
   }
 
   // Create upload promise and await
+  // TODO: add error handling if S3 fails on upload
   var uploadPromise = await new AWS.S3().putObject(objectParams).promise()
 
   //remove temp file
