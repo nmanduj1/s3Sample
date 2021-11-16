@@ -7,7 +7,7 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
-    "aws-sdk": "^2.563.0",
+    "aws-sdk": "^2.814.0",
     "dotenv": "^8.2.0",
     "koa": "^2.11.0",
     "koa-combine-routers": "^4.0.2",
